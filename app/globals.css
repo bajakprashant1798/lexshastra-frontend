@@ -1,26 +1,68 @@
+/* Tailwind v4 entry */
 @import "tailwindcss";
 
+/* Smooth color transitions for theme toggle */
+body { transition: color .2s ease, background-color .2s ease; }
+
+/* ============ DESIGN TOKENS (single source of truth) ============ */
+/* Light defaults */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* brand */
+  --primary:    #F5BA22;  /* gold */
+  --secondary:  #004F87;  /* deep blue */
+  --accent:     #F87060;  /* coral */
+
+  /* semantic */
+  --bg:         #FCFFF7;  /* soft linen */
+  --bg-elev:    #FFFFFF;
+  --fg:         #16181C;  /* near-black for text */
+  --muted:      #6B7280;  /* slate-500-ish */
+
+  /* borders/shadows */
+  --border:     #E5E7EB;
+  --ring:       color-mix(in oklab, var(--primary) 60%, white);
+
+  /* success/warn/danger (optional) */
+  --success:    #16A34A;
+  --warn:       #F59E0B;
+  --danger:     #EF4444;
+
+  /* radii */
+  --radius:     14px;
+
+  /* fonts (shadcn convention) */
+  --font-sans:  ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  --font-mono:  ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark overrides — NOT pure black; comfortable deep gray */
+.dark {
+  --bg:       #0D1117;  /* GitHub-like deep slate */
+  --bg-elev:  #111827;  /* slightly lighter for cards */
+  --fg:       #E6E8EB;  /* soft near-white */
+  --muted:    #9AA0A6;
+  --border:   #1F2937;
+  --ring:     color-mix(in oklab, var(--primary) 50%, black);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Apply tokens to base elements (shadcn-compatible) */
+html, body { height: 100%; }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+}
+
+/* Map tokens to Tailwind v4 theme via @theme inline (so utilities work) */
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-muted:      var(--muted);
+  --color-primary:    var(--primary);
+  --color-secondary:  var(--secondary);
+  --color-accent:     var(--accent);
+  --color-border:     var(--border);
+  --color-ring:       var(--ring);
+
+  --radius-lg: var(--radius);
 }

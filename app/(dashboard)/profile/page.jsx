@@ -1,0 +1,209 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import {
+  getCurrentUserTeamProfile,
+  updateTeamMember,
+} from "@/lib/team";
+import Button from "@/components/ui/Button";
+
+export default function ProfilePage() {
+  const [profile, setProfile] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [form, setForm] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [feedback, setFeedback] = useState(null); // {type:'success'|'error', message:string}
+
+  const fetchProfile = useCallback(() => {
+    const p = getCurrentUserTeamProfile();
+    setProfile(p);
+    setForm(p || {});
+  }, []);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  const toggleEdit = () => {
+    setFeedback(null);
+    if (isEditing) setForm(profile || {}); // cancel -> reset
+    setIsEditing((v) => !v);
+  };
+
+  const onChange = (e) => setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
+
+  const onPickPhoto = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setForm((s) => ({ ...s, profilePictureUrl: ev.target?.result }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const onSave = async (e) => {
+    e.preventDefault();
+    if (!profile) return;
+    setIsSaving(true);
+    setFeedback(null);
+    try {
+      await updateTeamMember({ ...profile, ...form });
+      setFeedback({ type: "success", message: "Profile updated successfully." });
+      setIsEditing(false);
+      fetchProfile();
+    } catch (err) {
+      setFeedback({ type: "error", message: err?.message || "Failed to update profile." });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const input = "w-full mt-1 bg-[var(--bg-elev)] text-foreground p-2 rounded-lg border border-border/50 text-sm outline-none focus:ring-2 focus:ring-primary";
+  const label = "text-xs font-semibold text-muted uppercase";
+
+  const avatarSrc =
+    form?.profilePictureUrl ||
+    (profile?.name
+      ? `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=F4B400&color=000&bold=true`
+      : "");
+
+  return (
+    <div>
+      <h1 className="text-3xl font-bold tracking-tight mb-8">My Profile</h1>
+
+      <div className="bg-[var(--bg-elev)] p-6 rounded-xl border border-border/20 max-w-4xl">
+        {!profile ? (
+          <p className="text-muted text-center py-10">Loading profile…</p>
+        ) : (
+          <form onSubmit={onSave}>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-xl font-semibold text-primary">Your Information</h2>
+                <p className="text-muted mt-1 text-sm">
+                  This information is synced with your Team Directory profile.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleEdit}
+                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-bold rounded-md bg-primary/10 text-primary hover:bg-primary/20"
+              >
+                {isEditing ? "Cancel" : "Edit Profile"}
+              </button>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+              <div className="flex-shrink-0 text-center">
+                {avatarSrc ? (
+                  <img
+                    src={avatarSrc}
+                    alt="Profile"
+                    className="w-32 h-32 rounded-full object-cover border-4 border-primary/40 mx-auto"
+                  />
+                ) : (
+                  <div className="w-32 h-32 rounded-full bg-foreground/10 border-4 border-primary/40 mx-auto" />
+                )}
+
+                {isEditing && (
+                  <div className="mt-4">
+                    <label
+                      htmlFor="profile-picture-upload"
+                      className="cursor-pointer text-sm text-primary hover:underline"
+                    >
+                      Change Picture
+                    </label>
+                    <input
+                      id="profile-picture-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={onPickPhoto}
+                      className="hidden"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
+                <div>
+                  <label className={label}>Name</label>
+                  {isEditing ? (
+                    <input name="name" value={form.name || ""} onChange={onChange} className={input} />
+                  ) : (
+                    <p className="mt-1 text-lg">{profile.name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className={label}>Role</label>
+                  {/* Editable role is optional; usually fixed by admin. Readonly here. */}
+                  <p className="mt-1 text-lg">{profile.role || "—"}</p>
+                </div>
+
+                <div>
+                  <label className={label}>Email</label>
+                  <p className="mt-1">{profile.email}</p>
+                </div>
+
+                <div>
+                  <label className={label}>Phone</label>
+                  {isEditing ? (
+                    <input name="phone" value={form.phone || ""} onChange={onChange} className={input} />
+                  ) : (
+                    <p className="mt-1">{profile.phone || "N/A"}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className={label}>Enrollment Number</label>
+                  {isEditing ? (
+                    <input
+                      name="enrollmentNumber"
+                      value={form.enrollmentNumber || ""}
+                      onChange={onChange}
+                      className={input}
+                    />
+                  ) : (
+                    <p className="mt-1">{profile.enrollmentNumber || "N/A"}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className={label}>Bar Council</label>
+                  {isEditing ? (
+                    <input
+                      name="barCouncil"
+                      value={form.barCouncil || ""}
+                      onChange={onChange}
+                      className={input}
+                    />
+                  ) : (
+                    <p className="mt-1">{profile.barCouncil || "N/A"}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {isEditing && (
+              <div className="mt-6 pt-6 border-t border-border/20 flex justify-end">
+                <Button type="submit" disabled={isSaving}>
+                  {isSaving ? "Saving…" : "Save Changes"}
+                </Button>
+              </div>
+            )}
+
+            {feedback && (
+              <p
+                className={`mt-4 text-center text-sm ${
+                  feedback.type === "success" ? "text-green-400" : "text-red-400"
+                }`}
+              >
+                {feedback.message}
+              </p>
+            )}
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
