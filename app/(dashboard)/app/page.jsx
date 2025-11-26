@@ -39,7 +39,7 @@ export default async function DashboardPage() {
   return (
     <>
       <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
-      <p className="text-muted mb-6">Welcome to your Lexshastra dashboard. Here's a quick overview of your activities.</p>
+      <p className="text-muted mb-6">Welcome to your Lexshastra dashboard. Here is a quick overview of your activities.</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Upcoming (lg spans 2) */}

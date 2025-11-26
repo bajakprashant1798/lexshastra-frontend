@@ -4,11 +4,13 @@ import { useState } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import { Menu } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import AuthGate from "@/components/AuthGate";
 
 export default function AppLayout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
+  <AuthGate>
     <div className="flex min-h-screen">
       {/* Sidebar (collapsible + mobile) */}
       <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
@@ -36,5 +38,6 @@ export default function AppLayout({ children }) {
         </main>
       </div>
     </div>
+    </AuthGate>
   );
 }

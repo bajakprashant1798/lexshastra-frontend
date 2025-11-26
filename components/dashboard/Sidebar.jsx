@@ -20,6 +20,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+// add this import
+import { logout } from '@/lib/auth';
 
 /**
  * Collapsible, responsive sidebar.
@@ -31,6 +33,8 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
   const pathname = usePathname();
   const router = useRouter(); 
   const [collapsed, setCollapsed] = useState(false);
+  // add state for logging out
+  const [loggingOut, setLoggingOut] = useState(false);
 
   // load/save collapsed preference
   useEffect(() => {
@@ -66,12 +70,24 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
     []
   );
 
-  const handleLogout = () => {
-    // clear demo auth (adjust if you have a real auth flow)
-    localStorage.removeItem("lexshastra_auth_current_user");
-    setMobileOpen(false);
-    router.replace("/"); // go to home page
+  const handleLogout = async () => {
+    const ok = window.confirm('Do you want to log out?');
+    if (!ok) return;
+
+    setLoggingOut(true);
+    try {
+      await logout(); // calls POST /auth/v1/logout, clears CSRF local storage
+      // optional: clear any client caches (react-query etc.)
+      router.replace('/login'); // or '/' to go marketing home
+    } catch (err) {
+      console.error('Logout failed', err);
+      window.alert('Logout failed. Please try again.');
+    } finally {
+      setLoggingOut(false);
+      setMobileOpen(false);
+    }
   };
+
 
 
   return (
