@@ -1,44 +1,33 @@
-"use client";
-import { useMemo } from "react";
+'use client';
 
-/**
- * Animated vertical lines background (hero).
- * Uses CSS keyframes defined inside this component to avoid global pollution.
- */
+import { useEffect, useState } from 'react';
+
 export default function Matrix() {
-  const lines = useMemo(() => Array.from({ length: 22 }), []);
+  const [lines, setLines] = useState([]);
+
+  useEffect(() => {
+    const generated = Array.from({ length: 21 }).map((_, i) => ({
+      left: `${(i / 21) * 100}%`,
+      duration: `${20 + Math.random() * 10}s`,
+      delay: `-${Math.random() * 20}s`,
+    }));
+    setLines(generated);
+  }, []);
+
   return (
-    <>
-      <style>{`
-        @keyframes ls-matrix {
-          from { transform: translateY(-100%); }
-          to   { transform: translateY(100%); }
-        }
-      `}</style>
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 bg-[var(--bg)]"
-      >
-        {lines.map((_, i) => {
-          const left = `${(i / (lines.length - 1)) * 100}%`;
-          const delay = `${Math.random() * -20}s`;
-          const duration = `${20 + Math.random() * 10}s`;
-          return (
-            <span
-              key={i}
-              className="absolute top-0 h-full w-px"
-              style={{
-                left,
-                background:
-                  "color-mix(in oklab, var(--border) 100%, transparent)",
-                opacity: 0.25,
-                animation: `ls-matrix ${duration} linear infinite`,
-                animationDelay: delay,
-              }}
-            />
-          );
-        })}
-      </div>
-    </>
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+      {lines.map((l, i) => (
+        <span
+          key={i}
+          className="absolute top-0 h-full w-px"
+          style={{
+            left: l.left,
+            opacity: 0.25,
+            animation: `ls-matrix ${l.duration} linear infinite`,
+            animationDelay: l.delay,
+          }}
+        />
+      ))}
+    </div>
   );
 }

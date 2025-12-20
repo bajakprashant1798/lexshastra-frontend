@@ -21,7 +21,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 // add this import
-import { logout } from '@/lib/auth';
+
+import { useClerk } from '@clerk/nextjs';
 
 /**
  * Collapsible, responsive sidebar.
@@ -70,18 +71,15 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
     []
   );
 
+  const { signOut } = useClerk();
   const handleLogout = async () => {
     const ok = window.confirm('Do you want to log out?');
     if (!ok) return;
 
     setLoggingOut(true);
     try {
-      await logout(); // calls POST /auth/v1/logout, clears CSRF local storage
-      // optional: clear any client caches (react-query etc.)
-      router.replace('/login'); // or '/' to go marketing home
-    } catch (err) {
-      console.error('Logout failed', err);
-      window.alert('Logout failed. Please try again.');
+      await signOut();
+      router.replace('/login');
     } finally {
       setLoggingOut(false);
       setMobileOpen(false);

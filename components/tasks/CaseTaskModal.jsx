@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getTeamMembers } from "@/lib/team";
-import { getCurrentUser } from "@/lib/auth";
+// import { getCurrentUser } from "@/lib/auth";
 
 export default function CaseTaskModal({ task, caseData, allCases, onClose, onSave }) {
   const [title, setTitle] = useState(task?.title || "");

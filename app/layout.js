@@ -1,6 +1,7 @@
 import "./globals.css";
-import ClientProviders from "./client-providers";
 import Navbar from "@/components/site/Navbar";
+import { ClerkProvider } from "@clerk/nextjs";
+import ClientProviders from "./client-providers";
 
 export const metadata = {
   title: "LexShastra — AI Legal Co-Pilot",
@@ -10,14 +11,16 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen">
-        <ClientProviders>
-          {/* If you want navbar only on marketing, move this into (public)/layout.jsx instead */}
-          {/* <Navbar /> */}
-          {children}
-        </ClientProviders>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className="min-h-screen">
+          <ClientProviders>
+            {/* If you want navbar only on marketing, move this into (public)/layout.jsx instead */}
+            {/* <Navbar /> */}
+            {children}
+          </ClientProviders>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

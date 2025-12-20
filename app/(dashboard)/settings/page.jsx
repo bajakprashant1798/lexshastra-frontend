@@ -1,18 +1,20 @@
 "use client";
-
+import { useClerk } from '@clerk/nextjs';
+import { useAuth } from '@clerk/nextjs';
 import { useCallback, useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
-
+import { UserProfile } from '@clerk/nextjs';
+import { getProfile, updateProfile } from '@/lib/user';
 // Demo auth/team stores (browser only)
-import {
-  getCurrentUser,
-  changePassword,   // make sure this exists in lib/auth.js (stub shown below)
-  hardReset,        // make sure this exists in lib/auth.js (stub shown below)
-} from "@/lib/auth";
-import {
-  getCurrentUserTeamProfile,
-  updateTeamMember,
-} from "@/lib/team";
+// import {
+//   getCurrentUser,
+//   changePassword,   // make sure this exists in lib/auth.js (stub shown below)
+//   hardReset,        // make sure this exists in lib/auth.js (stub shown below)
+// } from "@/lib/auth";
+// import {
+//   getCurrentUserTeamProfile,
+//   updateTeamMember,
+// } from "@/lib/team";
 
 // If you already have a ThemeSwitcher component, import it:
 // import ThemeSwitcher from "@/components/ThemeSwitcher";
@@ -104,6 +106,7 @@ function SecuritySection({ onSignOut }) {
 
   return (
     <SettingsCard title="Security" description="Manage your password and session security.">
+      <UserProfile routing="hash" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h3 className="text-lg font-semibold mb-3">Change Password</h3>
@@ -146,6 +149,7 @@ function SecuritySection({ onSignOut }) {
 }
 
 export default function SettingsPage() {
+  const { getToken } = useAuth();
   // Profile
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({});
@@ -153,13 +157,20 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [fb, setFb] = useState(null);
 
-  const fetchProfile = useCallback(() => {
-    const p = getCurrentUserTeamProfile();
-    setProfile(p);
-    setForm(p || {});
-  }, []);
-
-  useEffect(() => { fetchProfile(); }, [fetchProfile]);
+  // const fetchProfile = useCallback(() => {
+  //   const p = getCurrentUserTeamProfile();
+  //   setProfile(p);
+  //   setForm(p || {});
+  // }, []);
+  useEffect(() => {
+    async function load() {
+      const token = await getToken();
+      const data = await getProfile(token);
+      setProfile(data);
+    }
+    load();
+  }, [getToken]);
+  // useEffect(() => { fetchProfile(); }, [fetchProfile]);
 
   const toggleEdit = () => {
     setFb(null);
@@ -195,11 +206,11 @@ export default function SettingsPage() {
   };
 
   // Sign out (demo)
-  const handleLogout = () => {
-    // If you have a real auth flow, call its logout then redirect:
-    // e.g. await signOut(); router.push("/login");
-    localStorage.removeItem("lexshastra_auth_current_user");
-    window.location.href = "/login";
+  const { signOut } = useClerk();
+
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = '/login';
   };
 
   const handleResetWorkspace = () => {
