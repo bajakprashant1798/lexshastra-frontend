@@ -6,7 +6,7 @@ import { getNoticeTemplates } from "./_noticeTemplateStore";
 import { getDemoCases } from "@/components/cases/_demoStore";
 import { getContacts } from "@/components/contacts/_contactStore";
 import { analyzeNoticeText, generateNoticeDraft } from "@/lib/ai";
-import { addTask } from "@/lib/taskStore";        // created earlier in your project
+import { addGlobalTask } from "@/lib/taskStore";        // created earlier in your project
 import { addEvent } from "@/components/calendar/_store";   // created earlier in your project
 
 export default function AddNoticeModal({ notice, onClose, onSaveSuccess }) {
@@ -145,7 +145,7 @@ export default function AddNoticeModal({ notice, onClose, onSaveSuccess }) {
           if (!isNaN(due.getTime())) {
             const minus2 = new Date(due.getTime() - 2 * 24 * 60 * 60 * 1000);
             // global task (demo)
-            addTask({
+            addGlobalTask({
               id: `t_${Math.random().toString(36).slice(2, 8)}`,
               title: `Draft Reply: ${form.title}`,
               dueDate: minus2.toISOString().split("T")[0],
